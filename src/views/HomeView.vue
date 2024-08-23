@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="min-vh-100 p-2 container-lg">
+  <div class="min-vh-100 p-2 container-lg font-home">
     <h3>계약서 파일 업로드 프로토타입 사이트</h3>
     <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, png 만 업로드 가능합니다.</p>
     <form @submit.prevent="">
@@ -71,3 +71,8 @@ import mixins from '@/mixins';
     } //컴포넌트 내에서 사용할 메소드 정의
   }
 </script>
+<style>
+.font-home {
+  font-family: 'GowunDodum';
+}
+</style>
