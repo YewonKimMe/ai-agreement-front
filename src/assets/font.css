@@ -2,7 +2,7 @@
     font-family:'GowunDodum';
    /* font-family:'다른컴포넌트가서 불일 이름'; */
    
-    src: url('src/assets/fonts/GowunDodum-Regular.ttf') format('truetype');
+    src: url('/src/assets/fonts/GowunDodum-Regular.ttf') format('truetype');
    /* src: url('폰트가 저장 되어 있는 공간') format('truetype');*/
    
     font-weight: 400;
