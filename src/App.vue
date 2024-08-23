@@ -85,5 +85,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-
+.main {
+  font-family: 'GowunDodum';
+}
 </style>
