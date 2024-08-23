@@ -3,11 +3,23 @@
 
 <template>
   <div class="min-vh-100 p-2 container-lg">
-    <h3>계약서 파일 업로드</h3>
+    <h3>계약서 파일 업로드 프로토타입 사이트</h3>
+    <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, png 만 업로드 가능합니다.</p>
+    <form @submit.prevent="">
+
+    </form>
     <div class="input-group mb-3">
-      <input type="file" class="form-control" id="inputGroupFile02">
-      <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">전송</button>
+      <input type="file" class="form-control" multiple id="inputGroupFile02" @change="handleFileSelection">
     </div>
+    <div v-if="selectedFiles.length" class="mb-3">
+      <h5>선택된 파일:</h5>
+      <ul class="list-group">
+        <li v-for="(file, index) in selectedFiles" :key="index" class="list-group-item">
+          {{ file.name }}
+        </li>
+      </ul>
+    </div>
+    <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">전송</button>
   </div>
 </template>
 <script>
@@ -20,6 +32,7 @@ import mixins from '@/mixins';
     data() { //html과 자바스크립트 코드에서 사용할 데이터 변수 선언부
       return {
         data: {},
+        selectedFiles: [],
         isLoading: false,
       };
     }, 
@@ -29,23 +42,30 @@ import mixins from '@/mixins';
     mounted() {}, //template에 정의된 html 코드가 렌더링된 후 실행
     unmounted() {}, //unmount가 완료된 후 실행
     methods: {
-      async getPreview(previewNum) {
-        try {
-          this.isLoading = true;
-          const response = await AxiosInstance.get("/api/v1/preview", {params: {num: previewNum}});
-          this.previewList = response.data;
+      handleFileSelection(event) {
+        this.selectedFiles = Array.from(event.target.files);
+      },
+      async uploadFiles() {
+      if (this.selectedFiles.length === 0) {
+        this.uploadStatus = 'Please select files to upload.';
+        return;
+      }
+      
+      const formData = new FormData();
+      this.selectedFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      try {
+        const response = await axios.post('https://your-server-endpoint/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        this.uploadStatus = 'Files uploaded successfully!';
         } catch (error) {
-          if (error.code == this.networkErrorCode) {
-                alert(this.networkErrorMsg);
-            } else {
-                if (error.response) {
-                    alert(error.response.data.message);
-                } else {
-                    alert("오류가 발생했습니다.");
-                }
-            }
-        } finally {
-          this.isLoading = false;
+          console.error('Error uploading files:', error);
+          this.uploadStatus = 'Error uploading files.';
         }
       }
     } //컴포넌트 내에서 사용할 메소드 정의
