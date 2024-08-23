@@ -59,7 +59,7 @@ onMounted(() => {
   <div class="main">
     <nav class="navbar navbar-expand-lg d-flex justify-content-evenly sticky-top bg-body-tertiary shadow-sm bg-opacity-75">
       <div class="container-lg">
-        <h3>계약서 ai 검증 테스트/art team 2</h3>
+        <h3>계약서 ai 검증 테스트 / art team 2 / vue.js</h3>
         <button class="navbar-toggler me-2 fs-6" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
