@@ -5,21 +5,20 @@
   <div class="min-vh-100 p-2 container-lg font-home">
     <h3>계약서 파일 업로드 프로토타입</h3>
     <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, png 만 업로드 가능합니다.</p>
-    <form @submit.prevent="">
-
+    <form @submit.prevent="uploadFiles">
+      <div class="input-group mb-3">
+        <input type="file" class="form-control" multiple id="inputGroupFile02" @change="handleFileSelection">
+      </div>
+      <div v-if="selectedFiles.length" class="mb-3">
+        <h5>선택된 파일:</h5>
+        <ul class="list-group">
+          <li v-for="(file, index) in selectedFiles" :key="index" class="list-group-item">
+            {{ file.name }}
+          </li>
+        </ul>
+      </div>
+      <button class="btn btn-secondary" type="submit">전송</button>
     </form>
-    <div class="input-group mb-3">
-      <input type="file" class="form-control" multiple id="inputGroupFile02" @change="handleFileSelection">
-    </div>
-    <div v-if="selectedFiles.length" class="mb-3">
-      <h5>선택된 파일:</h5>
-      <ul class="list-group">
-        <li v-for="(file, index) in selectedFiles" :key="index" class="list-group-item">
-          {{ file.name }}
-        </li>
-      </ul>
-    </div>
-    <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">전송</button>
   </div>
 </template>
 <script>
@@ -34,6 +33,7 @@ import mixins from '@/mixins';
         data: {},
         selectedFiles: [],
         isLoading: false,
+        responseData: null,
       };
     }, 
     setup() {}, //컴포지션 API
@@ -46,27 +46,33 @@ import mixins from '@/mixins';
         this.selectedFiles = Array.from(event.target.files);
       },
       async uploadFiles() {
-      if (this.selectedFiles.length === 0) {
-        this.uploadStatus = 'Please select files to upload.';
-        return;
-      }
-      
-      const formData = new FormData();
-      this.selectedFiles.forEach(file => {
-        formData.append('images', file);
-      });
-
-      try {
-        const response = await axios.post('https://your-server-endpoint/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        this.uploadStatus = 'Files uploaded successfully!';
-        } catch (error) {
-          console.error('Error uploading files:', error);
-          this.uploadStatus = 'Error uploading files.';
+        if (this.selectedFiles.length === 0) {
+          this.uploadStatus = 'Please select files to upload.';
+          return;
         }
+      
+        const formData = new FormData();
+        this.selectedFiles.forEach(file => {
+          formData.append('images', file);
+        });
+
+        this.isLoading = true; 
+
+        try {
+          const response = await AxiosInstance.post('/api/v1/chat/agreement-image', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          this.uploadStatus = 'Files uploaded successfully!';
+          this.responseData = response.data;
+          } catch (error) {
+            console.error('Error uploading files:', error);
+            this.uploadStatus = 'Error uploading files.';
+            alert(error.response.data);
+          } finally {
+            this.isLoading = false;
+          }
       }
     } //컴포넌트 내에서 사용할 메소드 정의
   }
