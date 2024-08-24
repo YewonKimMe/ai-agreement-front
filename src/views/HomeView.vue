@@ -5,20 +5,35 @@
   <div class="min-vh-100 p-2 container-lg font-home">
     <h3>계약서 파일 업로드 프로토타입</h3>
     <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, png 만 업로드 가능합니다.</p>
-    <form @submit.prevent="uploadFiles">
-      <div class="input-group mb-3">
-        <input type="file" class="form-control" multiple id="inputGroupFile02" @change="handleFileSelection">
+    <div>
+      <form @submit.prevent="uploadFiles">
+        <div class="input-group mb-3">
+          <input type="file" class="form-control" multiple id="inputGroupFile02" @change="handleFileSelection">
+        </div>
+        <div v-if="selectedFiles.length" class="mb-3">
+          <h5>선택된 파일:</h5>
+          <ul class="list-group">
+            <li v-for="(file, index) in selectedFiles" :key="index" class="list-group-item">
+              {{ file.name }}
+            </li>
+          </ul>
+        </div>
+        <button class="btn btn-secondary" type="submit">전송</button>
+      </form>
+    </div>
+
+    <div v-if="isLoading">
+      <div class="text-center">
+        <div class="spinner-border m-2" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>계약서를 읽는 중입니다...</p>
       </div>
-      <div v-if="selectedFiles.length" class="mb-3">
-        <h5>선택된 파일:</h5>
-        <ul class="list-group">
-          <li v-for="(file, index) in selectedFiles" :key="index" class="list-group-item">
-            {{ file.name }}
-          </li>
-        </ul>
-      </div>
-      <button class="btn btn-secondary" type="submit">전송</button>
-    </form>
+    </div>
+
+    <div v-if="!isLoading && uploadFail">
+      <p class="text-danger text-center">업로드에 실패했습니다.</p>
+    </div>
   </div>
 </template>
 <script>
@@ -34,6 +49,7 @@ import mixins from '@/mixins';
         selectedFiles: [],
         isLoading: false,
         responseData: null,
+        uploadFail: false,
       };
     }, 
     setup() {}, //컴포지션 API
@@ -57,7 +73,7 @@ import mixins from '@/mixins';
         });
 
         this.isLoading = true; 
-
+        this.uploadFail = false;
         try {
           const response = await AxiosInstance.post('/api/v1/chat/agreement-image', formData, {
             headers: {
@@ -68,10 +84,11 @@ import mixins from '@/mixins';
           this.responseData = response.data;
           } catch (error) {
             console.error('Error uploading files:', error);
-            this.uploadStatus = 'Error uploading files.';
+            this.uploadFail = true;
             alert(error.response.data);
           } finally {
             this.isLoading = false;
+            console.log("uploadFail: " + this.uploadFail);
           }
       }
     } //컴포넌트 내에서 사용할 메소드 정의
