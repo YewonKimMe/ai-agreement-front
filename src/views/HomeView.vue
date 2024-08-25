@@ -18,7 +18,7 @@
             </li>
           </ul>
         </div>
-        <button class="btn btn-secondary" type="submit">전송</button>
+        <button class="btn" type="submit" :class="{'disabled': selectedFiles.length == 0 || isLoading, 'btn-secondary': selectedFiles.length == 0, 'btn-success': selectedFiles.length != 0}">전송</button>
       </form>
     </div>
 
@@ -34,6 +34,39 @@
     <div v-if="!isLoading && uploadFail">
       <p class="text-danger text-center">업로드에 실패했습니다.</p>
     </div>
+    <hr>
+    <div v-if="!isLoading && !uploadFail && responseData">
+      <h4>분석 결과:</h4>
+      <div>
+        <h5>요약</h5>
+        <span>점수 총점: {{scores}} => <span :class="{'text-success': totalScore >= 85, 'text-warning': totalScore < 70, 'text-danger': totalScore < 50}">{{totalScore}}</span></span>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <span>1. 기본 정보의 정확성 (20점 만점) / <span :class="{'text-success': scores[0] >= good, 'text-warning' : scores[0] < soso, 'text-danger' : scores[0] < bad}">{{scores[0]}} 점</span></span>
+          </li>
+          <li class="list-group-item">
+            <span>2. 법적 효력 (20점 만점) / <span :class="{'text-success': scores[1] >= good, 'text-warning' : scores[1] < soso, 'text-danger' : scores[1] < bad}">{{scores[1]}} 점</span></span>
+          </li>
+          <li class="list-group-item">
+            <span>3. 특약 사항의 완성도 (20점 만점) / <span :class="{'text-success': scores[2] >= good, 'text-warning' : scores[2] < soso, 'text-danger' : scores[2] < bad}">{{scores[2]}} 점</span></span>
+          </li>
+          <li class="list-group-item">
+            <span>4. 양측 권리와 의무의 명확성 (20점 만점) / <span :class="{'text-success': scores[3] >= good, 'text-warning' : scores[3] < soso, 'text-danger' : scores[3] < bad}">{{scores[3]}} 점</span></span>
+          </li>
+          <li class="list-group-item">
+            <span>5. 기타 중요한 조항 (20점 만점) / <span :class="{'text-success': scores[4] >= 17, 'text-warning' : scores[4] < soso, 'text-danger' : scores[4] < bad}">{{scores[4]}} 점</span></span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <hr>
+        <div>
+          <p v-html="formatNewLine(responseData.data.split('@')[0])"></p>
+        </div>
+      </div>
+      
+    </div>
+
   </div>
 </template>
 <script>
@@ -50,6 +83,11 @@ import mixins from '@/mixins';
         isLoading: false,
         responseData: null,
         uploadFail: false,
+        scores: [],
+        good: 17,
+        soso: 15, 
+        bad: 13,
+        totalScore: 0,
       };
     }, 
     setup() {}, //컴포지션 API
@@ -82,6 +120,9 @@ import mixins from '@/mixins';
           });
           this.uploadStatus = 'Files uploaded successfully!';
           this.responseData = response.data;
+          this.scores = this.getScoreList(response.data.data, 1).slice(1, -1).split(";").map(Number);
+          this.totalScore = this.scores.reduce((sum, current) => sum + current, 0);
+          
           } catch (error) {
             console.error('Error uploading files:', error);
             this.uploadFail = true;
