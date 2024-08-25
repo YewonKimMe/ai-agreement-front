@@ -75,7 +75,19 @@ export default {
             } else {
               return text;
             }
-          }
+        },
+        getDataListString(string) {
+            if (!string) {
+                return ""
+            }
+            return string.split('@')[1];
+        },
+        getScoreList(string, idx) {
+            if (!string || !string.includes('@')) {
+                return string;
+            }
+            return string.split('@')[idx]
+        }
     },
     data() {
         return {
