@@ -1,4 +1,8 @@
 <script setup>
+import IconX from '@/components/icons/IconX.vue';
+import IconImages from '@/components/icons/IconImages.vue';
+import IconFileTypeJpg from '@/components/icons/IconFileTypeJpg.vue';
+import IconFileTypePng from '@/components/icons/IconFileTypePng.vue';
 </script>
 
 <template>
@@ -8,13 +12,21 @@
     <div>
       <form @submit.prevent="uploadFiles">
         <div class="input-group mb-3">
-          <input type="file" class="form-control" multiple id="inputGroupFile02" @change="handleFileSelection">
+          <input type="file" class="form-control" multiple id="upload-file" @change="handleFileSelection" hidden>
+          <label for="upload-file">
+            <div class="btn btn-success p-2">
+              <IconFileTypeJpg /><IconFileTypePng /> <span class="fs-5">계약서 이미지 업로드</span>
+            </div>
+          </label>
         </div>
         <div v-if="selectedFiles.length" class="mb-3">
           <h5>선택된 파일:</h5>
           <ul class="list-group">
             <li v-for="(file, index) in selectedFiles" :key="index" class="list-group-item">
-              {{ file.name }}
+              {{ file.name }} 
+              <button class="btn btn-sm icon-link p-1" type="button" @click="removeFileAt(index)">
+                <IconX />
+              </button>
             </li>
           </ul>
         </div>
@@ -131,6 +143,9 @@ import mixins from '@/mixins';
             this.isLoading = false;
             console.log("uploadFail: " + this.uploadFail);
           }
+      },
+      removeFileAt(index) {
+        this.selectedFiles.splice(index, 1);
       }
     } //컴포넌트 내에서 사용할 메소드 정의
   }
