@@ -8,7 +8,7 @@ import IconFileTypePng from '@/components/icons/IconFileTypePng.vue';
 <template>
   <div class="min-vh-100 p-2 container-lg font-home">
     <h3>계약서 파일 업로드 프로토타입</h3>
-    <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, png 만 업로드 가능합니다.</p>
+    <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, jpeg, png 만 업로드 가능합니다.</p>
     <div>
       <form @submit.prevent="uploadFiles">
         <div class="input-group mb-3">
