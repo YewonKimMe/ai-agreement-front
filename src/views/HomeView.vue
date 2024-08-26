@@ -138,7 +138,7 @@ import mixins from '@/mixins';
           } catch (error) {
             console.error('Error uploading files:', error);
             this.uploadFail = true;
-            alert(error.response.data);
+            alert(error.response.data.data);
           } finally {
             this.isLoading = false;
             console.log("uploadFail: " + this.uploadFail);
