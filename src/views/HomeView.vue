@@ -7,7 +7,7 @@ import IconFileTypePng from '@/components/icons/IconFileTypePng.vue';
 
 <template>
   <div class="min-vh-100 p-2 container-lg font-home">
-    <h3>계약서 파일 업로드 프로토타입</h3>
+    <h3>계약서 파일 업로드 프로토타입/구조화 응답 적용</h3>
     <p>파일 업로드 시 파일 선택 -> [Ctrl + 클릭] 으로 여러개의 파일을 업로드 할 수 있습니다.<br>jpg, jpeg, png 만 업로드 가능합니다.</p>
     <div>
       <form @submit.prevent="uploadFiles">
@@ -72,11 +72,19 @@ import IconFileTypePng from '@/components/icons/IconFileTypePng.vue';
       </div>
       <div>
         <hr>
+        <h4>계약서>> {{responseData.data.contractName}}</h4>
+        <h4>임대인>> {{responseData.data.landlord}}</h4>
         <div>
-          <p v-html="formatNewLine(responseData.data.split('@')[0])"></p>
+          <p v-for="(message, idx) in responseMessages" :key="idx">
+            {{ message }}
+          </p>
         </div>
       </div>
-      
+      <hr>
+      <div>
+        <h4>응답 데이터</h4>
+        <pre>{{formattedData(responseData)}}</pre>
+      </div>
     </div>
 
   </div>
@@ -95,6 +103,7 @@ import mixins from '@/mixins';
         isLoading: false,
         responseData: null,
         uploadFail: false,
+        responseMessages: [],
         scores: [],
         good: 17,
         soso: 15, 
@@ -104,6 +113,7 @@ import mixins from '@/mixins';
     }, 
     setup() {}, //컴포지션 API
     created() {
+      this.checkAuth();
     }, //컴포넌트가 생성되면 실행
     mounted() {}, //template에 정의된 html 코드가 렌더링된 후 실행
     unmounted() {}, //unmount가 완료된 후 실행
@@ -113,7 +123,6 @@ import mixins from '@/mixins';
       },
       async uploadFiles() {
         if (this.selectedFiles.length === 0) {
-          this.uploadStatus = 'Please select files to upload.';
           return;
         }
       
@@ -127,31 +136,49 @@ import mixins from '@/mixins';
         try {
           const response = await AxiosInstance.post('/api/v1/chat/agreement-images', formData, {
             headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'multipart/form-data',
+              'Authorization': this.getCookie(this.authCookie),
             },
             params: {
-              isStructured: 0,
+              isStructured: 1,
             }
           });
-          this.uploadStatus = 'Files uploaded successfully!';
           this.responseData = response.data;
-          this.scores = this.getScoreList(response.data.data, 1).slice(1, -1).split(";").map(Number);
-          this.totalScore = this.scores.reduce((sum, current) => sum + current, 0);
+          console.log("response.data", response.data.data);
+          this.responseMessages = response.data.data.evaluationContentsByStandard;
+          //this.scores = this.getScoreList(response.data.data, 1).slice(1, -1).split(";").map(Number);
+          this.scores = response.data.data.evaluationScoresByStandard;
+          this.totalScore = response.data.data.evaluationScoresByStandard.reduce((sum, current) => sum + current, 0);
           
-          } catch (error) {
-            console.error('Error uploading files:', error);
-            this.uploadFail = true;
-            alert(error.response.data.data);
-          } finally {
-            this.isLoading = false;
-            console.log("uploadFail: " + this.uploadFail);
-          }
+        } catch (error) {
+          console.error('Error uploading files:', error);
+          this.uploadFail = true;
+          alert(error.response.data);
+        } finally {
+          this.isLoading = false;
+          console.log("uploadFail: " + this.uploadFail);
+        }
       },
       removeFileAt(index) {
         this.selectedFiles.splice(index, 1);
       },
       async checkAuth() {
-        
+        const serviceKey = this.getCookie(this.authCookie);
+          if(!serviceKey || serviceKey.length == 0) {
+            try {
+              const response = await AxiosInstance.get("/api/v1/connection");
+              this.setTimeCookie(this.authCookie, response.headers.get(this.authHeader), 2);
+            } catch (error) {
+              if (error.response) {
+                alert(error.response.data.message);
+              } else {
+                  alert("오류가 발생했습니다.");
+              }
+            }
+          }
+      },
+      formattedData(data) {
+        return JSON.stringify(data, null, 2);
       }
     } //컴포넌트 내에서 사용할 메소드 정의
   }
@@ -159,5 +186,12 @@ import mixins from '@/mixins';
 <style>
 .font-home {
   font-family: 'GowunDodum';
+}
+pre {
+  white-space: pre-wrap;  /* 줄 바꿈을 유지하고, 긴 줄을 화면에 맞추기 */
+  background: #000000;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>
