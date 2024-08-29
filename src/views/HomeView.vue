@@ -125,9 +125,12 @@ import mixins from '@/mixins';
         this.isLoading = true; 
         this.uploadFail = false;
         try {
-          const response = await AxiosInstance.post('/api/v1/chat/agreement-image', formData, {
+          const response = await AxiosInstance.post('/api/v1/chat/agreement-images', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
+            },
+            params: {
+              isStructured: 0,
             }
           });
           this.uploadStatus = 'Files uploaded successfully!';
@@ -146,6 +149,9 @@ import mixins from '@/mixins';
       },
       removeFileAt(index) {
         this.selectedFiles.splice(index, 1);
+      },
+      async checkAuth() {
+        
       }
     } //컴포넌트 내에서 사용할 메소드 정의
   }
