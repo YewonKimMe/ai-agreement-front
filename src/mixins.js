@@ -92,13 +92,14 @@ export default {
     data() {
         return {
             backendHost: "http://localhost:8080/api/v1",
-            authCookie: '_au_3033',
+            authCookie: '_service_key',
             networkErrorMsg: '서버가 응답하지 않습니다.',
             networkErrorCode: 'ERR_NETWORK',
             http: 'http://',
             https: 'https://',
             initialConnectionCookieName: '_target_status_connection',
             serviceMaintainCookieName: '_service_maintain_operation_value',
+            authHeader: 'Authorization',
         };
     }
 }
